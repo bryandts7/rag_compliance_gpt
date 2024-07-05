@@ -1,0 +1,5 @@
+streamlit==1.36.0
+langchain-core==0.2.10
+langchain==0.2.6
+langchain-community==0.2.6
+pymongo==4.8.0
