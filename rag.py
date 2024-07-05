@@ -1,3 +1,4 @@
+from operator import itemgetter
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
@@ -29,8 +30,18 @@ prompt = ChatPromptTemplate.from_messages(
 
 context_chain = rag_fusion_chain()
 full_chain = context_chain | prompt | llm | StrOutputParser()
+
+full_chain_with_context = context_chain | {"answer": prompt | llm | StrOutputParser(), "context": itemgetter("context")}
+
 full_chain_with_message_history = RunnableWithMessageHistory(
     full_chain,
+    get_session_history,
+    input_messages_key="question",
+    history_messages_key="history",
+)
+
+full_chain_with_context_and_message_history = RunnableWithMessageHistory(
+    full_chain_with_context,
     get_session_history,
     input_messages_key="question",
     history_messages_key="history",
@@ -41,6 +52,14 @@ def caller(message, sess_id):
     print(sess_id)
     print("Store:", store)
     response = full_chain_with_message_history.invoke(
+        {"question": message},
+        config={"configurable": {"session_id": sess_id}})
+    return response
+
+def caller_with_context(message, sess_id):
+    # print(sess_id)
+    # print("Store:", store)
+    response = full_chain_with_context_and_message_history.invoke(
         {"question": message},
         config={"configurable": {"session_id": sess_id}})
     return response
