@@ -38,6 +38,18 @@ RAG_PROMPT = (
     "{context}"
 )
 
+RAG_REKAM_JEJAK_PROMPT = (
+    "You will be provided with two sources of context: one from GraphRAG and one from RAG (which contains several Documents)."
+    "Your task is to combine the results from these two contexts effectively. However, prioritize the context from GraphRAG if it is not empty."
+    "If the context from GraphRAG is empty, then you should retrieve fully from the context provided by RAG."
+
+    "If GraphRAG context provides information about a topic but is missing some details, supplement it with additional details from the RAG context."
+    
+    "GraphRAG Context:"
+    "{structured}"
+    "If the above context is empty, you can rely on the Documents retreived here as the secondary context:"
+    "{unstructured}"
+)
 
 GRAPH_CYPHER_GEN_PROMPT = "XXXX"
 

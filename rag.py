@@ -4,6 +4,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from conversation import CustomChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables import RunnableLambda
 
 from azure_config import azure_llm, azure_embeddings
 from constants import RAG_PROMPT
@@ -13,6 +14,12 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in store:
         store[session_id] = CustomChatMessageHistory()
     return store[session_id]
+
+def get_source_docs(ls_tup):
+    new_ls = []
+    for tup in ls_tup:
+        new_ls.append(tup[0])
+    return new_ls
 
 store = {}
 llm = azure_llm()
@@ -31,7 +38,7 @@ prompt = ChatPromptTemplate.from_messages(
 context_chain = rag_fusion_chain()
 full_chain = context_chain | prompt | llm | StrOutputParser()
 
-full_chain_with_context = context_chain | {"answer": prompt | llm | StrOutputParser(), "context": itemgetter("context")}
+full_chain_with_context = context_chain | {"query":itemgetter("question"), "result": prompt | llm | StrOutputParser(), "source_documents": itemgetter("context")  | RunnableLambda(get_source_docs)}
 
 full_chain_with_message_history = RunnableWithMessageHistory(
     full_chain,
@@ -46,6 +53,9 @@ full_chain_with_context_and_message_history = RunnableWithMessageHistory(
     input_messages_key="question",
     history_messages_key="history",
 )
+
+def chain_with_context():
+    return full_chain_with_context
 
 # Function to invoke the full chain
 def caller(message, sess_id):

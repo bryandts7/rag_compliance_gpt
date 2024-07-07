@@ -1,14 +1,15 @@
 from operator import itemgetter
 from bson import ObjectId
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.load import dumps, loads
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 
 from database import rekam_jejak_vector, ketentuan_terkait_vector
 from azure_config import azure_llm
 from routing import router_chain
-from constants import RAG_FUSION_PROMPT
+from constants import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT
+from graph_rag import graph_rag_chain
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
@@ -56,8 +57,9 @@ def reciprocal_rank_fusion(results: list[list], k=60):
 def choose_retriever(result):
     print(result)
     if result["result"] == "rekam_jejak":
-        chain = {"question": itemgetter("question"),
-                 "history" : itemgetter("history")} | retrieval_rekam_jejak_chain_rag_fusion
+        parallel = RunnableParallel(unstructured=retrieval_rekam_jejak_chain_rag_fusion, structured=graph_chain)
+        chain = {"question": itemgetter("question"), "query": itemgetter("question"),
+                 "history" : itemgetter("history")} | parallel | context_rekam_jejak
         return chain
     elif result["result"] == "ketentuan_terkait":
         chain = {"question": itemgetter("question"),
@@ -90,4 +92,10 @@ ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever()
 
 retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
 retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion
+
+graph_chain = graph_rag_chain()
+template_rekam_jejak = RAG_REKAM_JEJAK_PROMPT
+context_rekam_jejak = PromptTemplate(
+    input_variables=["unstructured", "structured"], template=template_rekam_jejak
+)
 
