@@ -4,11 +4,12 @@ from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.load import dumps, loads
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
+from langchain.memory.summary import SummarizerMixin
 
 from database import rekam_jejak_vector, ketentuan_terkait_vector
 from azure_config import azure_llm
 from routing import router_chain
-from constants import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT
+from constants import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
 from graph_rag import graph_rag_chain
 
 # Convert ObjectId to string before serialization
@@ -53,18 +54,26 @@ def reciprocal_rank_fusion(results: list[list], k=60):
     print(len(reranked_results))
 
     # Return the reranked results as a list of tuples, each containing the document and its fused score
-    return reranked_results
+    return reranked_results[:8]
+
+def history_summarize(history):
+    global history_text
+    sum_hist = history_sum.predict_new_summary(history, history_text)
+    history_text = sum_hist
+    print(sum_hist)
+    return sum_hist
+
 
 def choose_retriever(result):
     print(result)
     if result["result"] == "rekam_jejak":
         parallel = RunnableParallel(unstructured=retrieval_rekam_jejak_chain_rag_fusion, structured=graph_chain)
         chain = {"question": itemgetter("question"), "query": itemgetter("question"),
-                 "history" : itemgetter("history")} | parallel | context_rekam_jejak
+                 "history" : itemgetter("history") | RunnableLambda(history_summarize)} | parallel | context_rekam_jejak
         return chain
     elif result["result"] == "ketentuan_terkait":
         chain = {"question": itemgetter("question"),
-                 "history" : itemgetter("history")} | retrieval_ketentuan_terkait_chain_rag_fusion
+                 "history" : itemgetter("history") | RunnableLambda(history_summarize)} | retrieval_ketentuan_terkait_chain_rag_fusion
         return chain
 
 def rag_fusion_chain():
@@ -76,9 +85,15 @@ def rag_fusion_chain():
 
     return context_chain
 
+SUMMARY_PROMPT = PromptTemplate(
+    input_variables=["summary", "new_lines"], template=SUMMARY_HISTORY_PROMPT
+)
+
+
 llm = azure_llm()
 router = router_chain()
-
+history_sum = SummarizerMixin(llm=llm, prompt=SUMMARY_PROMPT)
+history_text = "-"
 template = RAG_FUSION_PROMPT
 prompt_rag_fusion = ChatPromptTemplate.from_template(template)
 generate_queries = (

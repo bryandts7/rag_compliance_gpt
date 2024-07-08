@@ -23,7 +23,7 @@ RAG_PROMPT = (
     "the question. If you don't know the answer, say that you "
     "don't know."
     "Please write your answer ONLY in INDONESIAN."
-    
+
     # "Jika sebuah peraturan A mencabut atau mengubah peraturan B, C, D"
     # "maka peraturan B, C, D tersebut mungkin saja sudah tidak berlaku"
     
@@ -31,7 +31,7 @@ RAG_PROMPT = (
     # "jawab 'Iya' ketika peraturan tersebut tidak diubah dan tidak dicabut peraturan lain dan jelaskan mengapa demikian."
     # "Sebaliknya, jawab 'Mungkin tidak berlaku' ketika ada peraturan lain yang mengubah atau mencabut peraturan tersebut. "
     # "Tambahkan peraturan apa yang mencabut atau mengubah jika jawaban nya 'Mungkin tidak berlaku' "
-
+    "Jika pertanyaan menanyakan tentang peraturan, tulis dengan detail nomor ketentuan dan ketentuannya secara detail"
     "Jika konteks yang diberikan tidak relevan dengan pertanyaan, jangan pernah membuat jawaban dari pengetahuanmu sendiri"
     "Jawab kalau anda tidak tahu jika konteks yang diberikan tidak sesuai dengan pertanyaan."
     
@@ -80,6 +80,29 @@ the query results. Always use the data in the query results.
 
 WRITE YOUR ANSWER IN INDONESIAN LANGUAGE.
 """
+
+SUMMARY_HISTORY_PROMPT = """Progressively summarize the lines of conversation provided, adding onto the previous summary returning a new summary.
+Please write the summary as concise as possible with maximum of only 4 sentences. Please also write in the language that the conversation talks (if the conversation in Indonesia, then use Indonesia)
+
+EXAMPLE
+Current summary:
+The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good.
+
+New lines of conversation:
+Human: Why do you think artificial intelligence is a force for good?
+AI: Because artificial intelligence will help humans reach their full potential.
+
+New summary:
+The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good because it will help humans reach their full potential.
+END OF EXAMPLE
+
+Current summary:
+{summary}
+
+New lines of conversation:
+{new_lines}
+
+New summary:"""
 
 EVAL_QUESTIONS = [
     "Apa batas waktu yang diberikan untuk persetujuan atau penolakan atas permohonan izin usaha setelah dokumen permohonan diterima secara lengkap?",
