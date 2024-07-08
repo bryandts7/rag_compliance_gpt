@@ -15,22 +15,25 @@ RAG_FUSION_PROMPT = """You are a helpful assistant that generates multiple searc
     on prior conversation between human and AI before this question being asked:
     {history}
 
-    Output (4 queries):"""
+    Output (3 queries):"""
 
 RAG_PROMPT = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
-    "don't know. Use three sentences maximum and keep the answer concise."
+    "don't know."
     "Please write your answer ONLY in INDONESIAN."
-
-    "Jika sebuah peraturan A mencabut atau mengubah peraturan B, C, D"
-    "maka peraturan B, C, D tersebut mungkin saja sudah tidak berlaku"
     
-    "Jika ada yang bertanya mengenai aturan masih berlaku atau masih relevan, "
-    "jawab 'Iya' ketika peraturan tersebut tidak diubah dan tidak dicabut peraturan lain dan jelaskan mengapa demikian."
-    "Sebaliknya, jawab 'Mungkin tidak berlaku' ketika ada peraturan lain yang mengubah atau mencabut peraturan tersebut. "
-    "Tambahkan peraturan apa yang mencabut atau mengubah jika jawaban nya 'Mungkin tidak berlaku' "
+    # "Jika sebuah peraturan A mencabut atau mengubah peraturan B, C, D"
+    # "maka peraturan B, C, D tersebut mungkin saja sudah tidak berlaku"
+    
+    # "Jika ada yang bertanya mengenai aturan masih berlaku atau masih relevan, "
+    # "jawab 'Iya' ketika peraturan tersebut tidak diubah dan tidak dicabut peraturan lain dan jelaskan mengapa demikian."
+    # "Sebaliknya, jawab 'Mungkin tidak berlaku' ketika ada peraturan lain yang mengubah atau mencabut peraturan tersebut. "
+    # "Tambahkan peraturan apa yang mencabut atau mengubah jika jawaban nya 'Mungkin tidak berlaku' "
+
+    "Jika konteks yang diberikan tidak relevan dengan pertanyaan, jangan pernah membuat jawaban dari pengetahuanmu sendiri"
+    "Jawab kalau anda tidak tahu jika konteks yang diberikan tidak sesuai dengan pertanyaan."
     
     # "Please also mention the 'Nomor Ketentuan' and 'Ketentuan' from the metadata in a subtle way "
     # "such that you can add more context to answer the question. "

@@ -50,6 +50,7 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         (convert_string_to_objectid(loads(doc)), score)
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
+    print(len(reranked_results))
 
     # Return the reranked results as a list of tuples, each containing the document and its fused score
     return reranked_results
@@ -88,7 +89,7 @@ generate_queries = (
 )
 
 rekam_jejak_retriever = rekam_jejak_vector().as_retriever()
-ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever()
+ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever(search_type="mmr")
 
 retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
 retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion
