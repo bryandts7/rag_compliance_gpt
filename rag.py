@@ -63,7 +63,7 @@ def chain_with_context():
 def caller(message, sess_id):
     print(sess_id)
     print("Store:", store)
-    response = full_chain_with_context_and_message_history.invoke(
+    response = full_chain_with_message_history.invoke(
         {"question": message},
         config={"configurable": {"session_id": sess_id}})
     return response

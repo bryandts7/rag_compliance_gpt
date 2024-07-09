@@ -1,5 +1,3 @@
-from pymongo import MongoClient
-from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 
@@ -10,12 +8,7 @@ import os
 import dotenv
 dotenv.load_dotenv()
 
-MONGODB_ATLAS_CLUSTER_URI  = os.getenv("MONGODB_ATLAS_CLUSTER_URI")
-DB_NAME = "langchain_db"
-ATLAS_VECTOR_SEARCH_INDEX_NAME = "vector_index"
-
 # initialize MongoDB python client
-client = MongoClient(MONGODB_ATLAS_CLUSTER_URI)
 embeddings = azure_embeddings()
 
 pinecone_api_key = os.environ.get("PINECONE_API_KEY")

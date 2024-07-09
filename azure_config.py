@@ -3,6 +3,8 @@ import dotenv
 from langchain_openai import AzureChatOpenAI
 from langchain_openai import AzureOpenAIEmbeddings
 
+dotenv.load_dotenv()
+
 # Configuration
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
