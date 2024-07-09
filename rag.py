@@ -5,6 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 from conversation import CustomChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables import RunnableLambda
+from retry import retry
 
 from azure_config import azure_llm, azure_embeddings
 from constants import RAG_PROMPT
@@ -38,7 +39,7 @@ prompt = ChatPromptTemplate.from_messages(
 context_chain = rag_fusion_chain()
 full_chain = context_chain | prompt | llm | StrOutputParser()
 
-full_chain_with_context = context_chain | {"query":itemgetter("question"), "result": prompt | llm | StrOutputParser(), "source_documents": itemgetter("context")  | RunnableLambda(get_source_docs)}
+full_chain_with_context = context_chain | {"query":itemgetter("question"), "result": prompt | llm | StrOutputParser(), "source_documents": itemgetter("context") } #| RunnableLambda(get_source_docs)}
 
 full_chain_with_message_history = RunnableWithMessageHistory(
     full_chain,
@@ -58,14 +59,14 @@ def chain_with_context():
     return full_chain_with_context
 
 # Function to invoke the full chain
+@retry(tries=3, delay=2)
 def caller(message, sess_id):
     print(sess_id)
     print("Store:", store)
-    response = full_chain_with_message_history.invoke(
+    response = full_chain_with_context_and_message_history.invoke(
         {"question": message},
         config={"configurable": {"session_id": sess_id}})
     return response
-
 
 
 def caller_with_context(message, sess_id):

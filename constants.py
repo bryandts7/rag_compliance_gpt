@@ -50,7 +50,7 @@ RAG_REKAM_JEJAK_PROMPT = (
     
     "GraphRAG Context:"
     "{structured}"
-    "If the above context is empty, you can rely on the Documents retreived here as the secondary context:"
+    "You can also rely on the Documents retreived here as an additional context:"
     "{unstructured}"
 )
 
@@ -81,8 +81,8 @@ the query results. Always use the data in the query results.
 WRITE YOUR ANSWER IN INDONESIAN LANGUAGE.
 """
 
-SUMMARY_HISTORY_PROMPT = """Progressively summarize the lines of conversation provided, adding onto the previous summary returning a new summary.
-Please write the summary as concise as possible with maximum of only 4 sentences. Please also write in the language that the conversation talks (if the conversation in Indonesia, then use Indonesia)
+SUMMARY_HISTORY_PROMPT = """Progressively summarize the lines of conversation provided and the previous summary returning a new summary with maximum length of 4 sentences for the new summary.
+Please write in Indonesian Language only!
 
 EXAMPLE
 Current summary:
