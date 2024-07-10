@@ -1,4 +1,4 @@
-from langchain.chains.graph_qa.cypher import GraphCypherQAChain
+from utils import GraphCypherQAChain
 from langchain_core.prompts import PromptTemplate
 from langchain_community.graphs import Neo4jGraph
 
@@ -8,6 +8,7 @@ from constants import GRAPH_QA_GEN_PROMPT, GRAPH_CYPHER_GEN_PROMPT
 import dotenv
 import os
 dotenv.load_dotenv()
+
 
 URL = os.getenv("NEO4J_GRAPH_URL")
 USERNAME = os.getenv("NEO4J_USERNAME")
@@ -21,7 +22,7 @@ qa_generation_template = GRAPH_QA_GEN_PROMPT
 qa_generation_prompt = PromptTemplate(input_variables=["context", "question"], template=qa_generation_template)
 
 cypher_generation_template = GRAPH_CYPHER_GEN_PROMPT
-cypher_generation_prompt = PromptTemplate(input_variables=["schema", "question"], template=cypher_generation_template)
+cypher_generation_prompt = PromptTemplate(input_variables=["schema", "question", "history"], template=cypher_generation_template)
 
 def graph_rag_chain():
     chain = GraphCypherQAChain.from_llm(

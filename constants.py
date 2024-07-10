@@ -66,6 +66,7 @@ Do not include any text except the generated Cypher statement.
 
 Jika seorang pengguna menanyakan apakah suatu peraturan masih relevan atau masih berlaku, Anda perlu memeriksa apakah peraturan tersebut telah "DICABUT" atau "DIUBAH" oleh peraturan lain, atau apakah peraturan lain "MENCABUT" atau "MENGUBAH" peraturan tersebut.
 
+PLEASE USE THIS EXAMPLE FOR YOUR THINKING AND NEVER USE IT TO ANSWER ANY QUESTIONS.
 ### EXAMPLE
 **User Query:** Apakah peraturan dengan nomor 13/3/DPM/2011 masih berlaku?
 **Generated Cypher Query:**
@@ -83,10 +84,12 @@ RETURN
     ELSE 'Yes, this regulation is still relevant.'
   END AS relevanceStatus
 
-PLEASE USE THE EXAMPLE FOR YOUR THINKING AND NOT USING IT TO ANSWER ANY QUESTIONS.
-
 The question is:
-{question}"""
+{question}
+
+History conversation if the question not straightforward:
+{history}
+"""
 
 GRAPH_QA_GEN_PROMPT = """Anda adalah asisten yang mengambil hasil dari kueri Neo4j Cypher 
 dan membentuk respons yang dapat dibaca manusia. Bagian hasil kueri berisi hasil kueri Cypher
