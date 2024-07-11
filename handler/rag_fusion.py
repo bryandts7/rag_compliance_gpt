@@ -6,11 +6,11 @@ from langchain.load import dumps, loads
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 from langchain.memory.summary import SummarizerMixin
 
-from database import rekam_jejak_vector, ketentuan_terkait_vector
-from azure_config import azure_llm
-from routing import router_chain
-from constants import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
-from graph_rag import graph_rag_chain
+from database.database import rekam_jejak_vector, ketentuan_terkait_vector
+from utils.azure_openai import azure_llm
+from handler.routing import router_chain
+from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
+from database.graph_rag import graph_rag_chain
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
@@ -51,7 +51,7 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         (convert_string_to_objectid(loads(doc)), score)
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
-    print(len(reranked_results))
+    print("Retrieved Documents:", len(reranked_results))
 
     # Return the reranked results as a list of tuples, each containing the document and its fused score
     return reranked_results[:8]
@@ -60,12 +60,12 @@ def history_summarize(history):
     global history_text
     sum_hist = history_sum.predict_new_summary(history, history_text)
     history_text = sum_hist
-    print(sum_hist)
+    print("History:", sum_hist)
     return sum_hist
 
 
 def choose_retriever(result):
-    print(result)
+    print("Retriever routed to:", result["result"])
     if result["result"] == "rekam_jejak":
         parallel = RunnableParallel(unstructured=retrieval_rekam_jejak_chain_rag_fusion, structured=graph_chain)
         chain = {"question": itemgetter("question"), "query": itemgetter("question"),

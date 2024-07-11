@@ -1,7 +1,7 @@
 from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 
-from azure_config import azure_embeddings
+from utils.azure_openai import azure_embeddings
 
 import time
 import os

@@ -1,9 +1,9 @@
-from utils import GraphCypherQAChain
+from utils.graph_cypher import GraphCypherQAChain
 from langchain_core.prompts import PromptTemplate
 from langchain_community.graphs import Neo4jGraph
 
-from azure_config import azure_llm
-from constants import GRAPH_QA_GEN_PROMPT, GRAPH_CYPHER_GEN_PROMPT
+from utils.azure_openai import azure_llm
+from constants.prompt import GRAPH_QA_GEN_PROMPT, GRAPH_CYPHER_GEN_PROMPT
 
 import dotenv
 import os

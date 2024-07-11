@@ -34,6 +34,11 @@ from langchain_community.chains.graph_qa.prompts import (
 )
 from langchain_community.graphs.graph_store import GraphStore
 
+import warnings
+from langchain_core._api.deprecation import LangChainDeprecationWarning
+warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
+
+
 INTERMEDIATE_STEPS_KEY = "intermediate_steps"
 
 FUNCTION_RESPONSE_SYSTEM = """You are an assistant that helps to form nice and human 

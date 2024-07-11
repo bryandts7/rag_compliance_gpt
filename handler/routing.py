@@ -3,8 +3,8 @@ from typing import Literal
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda
 
-from azure_config import azure_llm
-from constants import ROUTER_PROMPT
+from utils.azure_openai import azure_llm
+from constants.prompt import ROUTER_PROMPT
 
 # Data model
 class RouteQuery(BaseModel):
