@@ -11,6 +11,7 @@ from utils.azure_openai import azure_llm
 from handler.routing import router_chain
 from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
 from database.graph_rag import graph_rag_chain
+from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
@@ -52,6 +53,7 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
     print("Retrieved Documents:", len(reranked_results))
+    print(reranked_results)
 
     # Return the reranked results as a list of tuples, each containing the document and its fused score
     return reranked_results[:8]
@@ -103,8 +105,11 @@ generate_queries = (
     | (lambda x: x.split("\n"))
 )
 
-rekam_jejak_retriever = rekam_jejak_vector().as_retriever()
+rekam_jejak_retriever = rekam_jejak_vector().as_retriever(search_type="mmr")
 ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever(search_type="mmr")
+
+# rekam_jejak_retriever = self_retriever_rekam_jejak()
+# ketentuan_terkait_retriever = self_retriever_ketentuan()
 
 retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
 retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion

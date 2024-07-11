@@ -1,3 +1,7 @@
+import warnings
+from langchain_core._api.beta_decorator import LangChainBetaWarning
+warnings.filterwarnings("ignore", category=LangChainBetaWarning)
+
 from operator import itemgetter
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -10,13 +14,6 @@ from retry import retry
 from utils.azure_openai import azure_llm, azure_embeddings
 from constants.prompt import RAG_PROMPT
 from handler.rag_fusion import rag_fusion_chain
-
-import warnings
-from langchain_core._api.beta_decorator import LangChainBetaWarning
-warnings.filterwarnings("ignore", category=LangChainBetaWarning)
-
-# Your code here
-
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in store:
