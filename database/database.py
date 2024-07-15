@@ -8,7 +8,6 @@ import os
 import dotenv
 dotenv.load_dotenv()
 
-# initialize MongoDB python client
 embeddings = azure_embeddings()
 
 pinecone_api_key = os.environ.get("PINECONE_API_KEY")

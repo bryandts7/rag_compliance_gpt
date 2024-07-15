@@ -14,7 +14,18 @@ st.set_page_config(page_title="Chat Application", layout="wide")
 # Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "How may I help you today?"}
+        {"role": "assistant", "content": "Welcome to the Sikepo OJK Document Assistant! I'm here to help you navigate and find information on documents available on the Sikepo OJK website. How can I assist you today?"},
+         {"role": "assistant", "content": 
+'''SIKEPO support 2 types of question: Type 1 is Ketentuan Terkait and Type 2 is Rekam Jejak. To improve the generated answers, you may follow these prompt examples for each question type.\n
+Example for Ketentuan Terkait:\n
+1.) Jika saya mau membuat produk promosi terkait produk XXX, peraturan apa saja yang perlu saya perhatikan?\n
+2.) Apa saja peraturan yang membahas tentang XXX?\n
+3.) Sebutkan peraturan-peraturan yang melarang adanya XXX?\n
+\n
+Example for Rekam Jejak:\n
+1.) Apakah peraturan dengan nomor ketentuan XXX masih berlaku?\n
+2.) Apakah ada peraturan yang mencabut peraturan XXX?\n
+'''}
     ]
 
 if "current_response" not in st.session_state:

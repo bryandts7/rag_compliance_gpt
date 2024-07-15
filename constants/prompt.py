@@ -8,14 +8,18 @@ Criteria: If the user question asks for detailed explanations, meanings of the r
 Action: Return 'ketentuan_terkait'.
 """
 
-RAG_FUSION_PROMPT = """You are a helpful assistant that generates multiple search queries based on a single input query. \n
-    Generate multiple search queries related to: {question} \n
+RAG_FUSION_PROMPT = """You are a helpful assistant that generates 2 search queries based on a single input query. \n
+    Generate 2 search queries related to: {question} \n
 
     If the question context is not really clear, you can utilize this text history based 
     on prior conversation between human and AI before this question being asked:
     {history}
 
-    Output (3 queries):"""
+    You just need to output ONLY QUERIES. DO NOT WRITE INDEXING OR ANY OTHER NOTES. The output template is like this:
+    {{Original Query}}
+    {{Paraphrased Query}}
+    {{Paraphrased Query}}
+    Output (1 ORIGINAL QUERY AND 2 PARAPHRASED QUERIES):"""
 
 RAG_PROMPT = (
     "You are an assistant for question-answering tasks. "

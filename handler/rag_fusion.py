@@ -5,13 +5,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.load import dumps, loads
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 from langchain.memory.summary import SummarizerMixin
+from langchain.retrievers import EnsembleRetriever
 
 from database.database import rekam_jejak_vector, ketentuan_terkait_vector
 from utils.azure_openai import azure_llm
 from handler.routing import router_chain
 from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
 from database.graph_rag import graph_rag_chain
-from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
+from handler.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
@@ -65,6 +66,9 @@ def history_summarize(history):
     print("History:", sum_hist)
     return sum_hist
 
+def ketentuan_terkait_runnable(queries):
+    res = [ketentuan_terkait_retriever_bm25.invoke(queries[0]), ketentuan_terkait_retriever.invoke(queries[1]), ketentuan_terkait_retriever.invoke(queries[2])]
+    return res
 
 def choose_retriever(result):
     print("Retriever routed to:", result["result"])
@@ -93,9 +97,12 @@ SUMMARY_PROMPT = PromptTemplate(
 
 
 llm = azure_llm()
+
 router = router_chain()
+
 history_sum = SummarizerMixin(llm=llm, prompt=SUMMARY_PROMPT)
 history_text = "-"
+
 template = RAG_FUSION_PROMPT
 prompt_rag_fusion = ChatPromptTemplate.from_template(template)
 generate_queries = (
@@ -108,11 +115,18 @@ generate_queries = (
 rekam_jejak_retriever = rekam_jejak_vector().as_retriever(search_type="mmr")
 ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever(search_type="mmr")
 
-# rekam_jejak_retriever = self_retriever_rekam_jejak()
-# ketentuan_terkait_retriever = self_retriever_ketentuan()
+rekam_jejak_retriever_bm25 = bm25_rekam_retriever()
+rekam_jejak_retriever_bm25.k = 10
+
+ketentuan_terkait_retriever_bm25 = bm25_ketentuan_retriever()
+ketentuan_terkait_retriever_bm25.k = 10
+
+# retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
+# retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion
 
 retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
-retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion
+retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | RunnableLambda(ketentuan_terkait_runnable) | reciprocal_rank_fusion
+
 
 graph_chain = graph_rag_chain()
 template_rekam_jejak = RAG_REKAM_JEJAK_PROMPT
