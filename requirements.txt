@@ -8,3 +8,4 @@ neo4j
 pinecone
 langchain_pinecone
 retry
+bson
