@@ -54,10 +54,13 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
     print("Retrieved Documents:", len(reranked_results))
-    print(reranked_results)
 
+    #Top 10 Result
+    best_result = [reranked_results[i][0] for i in range(min(10, len(reranked_results)))]
+
+    print(best_result)
     # Return the reranked results as a list of tuples, each containing the document and its fused score
-    return reranked_results[:8]
+    return best_result
 
 def history_summarize(history):
     global history_text
@@ -67,7 +70,8 @@ def history_summarize(history):
     return sum_hist
 
 def ketentuan_terkait_runnable(queries):
-    res = [ketentuan_terkait_retriever_bm25.invoke(queries[0]), ketentuan_terkait_retriever.invoke(queries[1]), ketentuan_terkait_retriever.invoke(queries[2])]
+    # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
+    res = [ketentuan_terkait_retriever_bm25.invoke(queries[0]), ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
     return res
 
 def choose_retriever(result):
@@ -113,11 +117,8 @@ generate_queries = (
 )
 
 rekam_jejak_retriever = rekam_jejak_vector().as_retriever(search_type="mmr")
-ketentuan_terkait_retriever = ketentuan_terkait_vector().as_retriever(search_type="mmr")
-
-rekam_jejak_retriever_bm25 = bm25_rekam_retriever()
-rekam_jejak_retriever_bm25.k = 10
-
+ketentuan_terkait_retriever_mmr = ketentuan_terkait_vector().as_retriever(search_type="mmr")
+ketentuan_terkait_retriever_sim = ketentuan_terkait_vector().as_retriever(search_type="similarity")
 ketentuan_terkait_retriever_bm25 = bm25_ketentuan_retriever()
 ketentuan_terkait_retriever_bm25.k = 10
 

@@ -11,5 +11,5 @@ def load_docs_from_jsonl(file_path)->Iterable[Document]:
             array.append(obj)
     return array
 
-REKAM_DOCS = load_docs_from_jsonl(r"constants\rekam_jejak_docs_langchain.jsonl")
-KETENTUAN_DOCS = load_docs_from_jsonl(r"constants\ketentuan_terkait_docs_langchain.jsonl")
+REKAM_DOCS = load_docs_from_jsonl(r"constants/rekam_jejak_docs_langchain.jsonl")
+KETENTUAN_DOCS = load_docs_from_jsonl(r"constants/ketentuan_terkait_docs_langchain.jsonl")
