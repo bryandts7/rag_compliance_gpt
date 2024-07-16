@@ -1,6 +1,5 @@
 from langchain_community.retrievers import BM25Retriever
 from constants.docs import REKAM_DOCS, KETENTUAN_DOCS 
-from pinecone_text.sparse import BM25Encoder
 
 def bm25_rekam_retriever():
     return rekam_retriever
