@@ -10,4 +10,6 @@ langchain_pinecone
 retry
 bson
 rank_bm25
-redis
+lark
+pymongo
+langchain_mongodb
