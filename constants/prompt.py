@@ -25,7 +25,8 @@ RAG_PROMPT = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
-    "don't know."
+    "don't know. Please do not use your prior knowledge."
+    "If the question does not related to the context given, just answer 'Saya tidak tahu mengenai hal tersebut'. "
     "Use three (3) sentences maximum and keep the answer concise."
     "Please write your answer ONLY in INDONESIAN."
 
@@ -122,14 +123,12 @@ the query results. Always use the data in the query results.
 WRITE YOUR ANSWER IN INDONESIAN LANGUAGE.
 """
 
-SUMMARY_HISTORY_PROMPT = """Progressively summarize the lines of conversation provided and the previous summary returning a new summary with maximum length of 4 sentences for the new summary.
+SUMMARY_HISTORY_PROMPT = """Progressively summarize the lines of conversation provided and the previous summary returning a new summary with maximum length of  four (4) sentences for the new summary.
 Please write in Indonesian Language only!
 
 EXAMPLE
-Current summary:
-The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good.
-
-New lines of conversation:
+Current conversation:
+-
 Human: Why do you think artificial intelligence is a force for good?
 AI: Because artificial intelligence will help humans reach their full potential.
 
@@ -137,10 +136,8 @@ New summary:
 The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good because it will help humans reach their full potential.
 END OF EXAMPLE
 
-Current summary:
+Current conversation:
 {summary}
-
-New lines of conversation:
 {new_lines}
 
 New summary:"""

@@ -56,10 +56,10 @@ def reciprocal_rank_fusion(results: list[list], k=60):
     ]
     os.write(1, f"Retrieved Documents: {len(reranked_results)}\n".encode())
 
-    #Top 10 Result
-    best_result = [reranked_results[i][0] for i in range(min(10, len(reranked_results)))]
+    #Top 8 Result
+    best_result = [reranked_results[i][0] for i in range(min(8, len(reranked_results)))]
 
-    # Return the best 10 results according to fused score as a list of document
+    # Return the best 8 results according to fused score as a list of document
     return best_result
 
 def history_summarize(history):
