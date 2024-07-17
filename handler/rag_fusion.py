@@ -13,7 +13,7 @@ from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_
 from database.graph_rag import graph_rag_chain
 from handler.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
 from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
-
+import os
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
     if '_id' in doc.metadata:
@@ -53,12 +53,12 @@ def reciprocal_rank_fusion(results: list[list], k=60):
         (convert_string_to_objectid(loads(doc)), score)
         for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
-    print("Retrieved Documents:", len(reranked_results))
+    os.write(1, f"Retrieved Documents: {len(reranked_results)}\n".encode())
 
     #Top 10 Result
     best_result = [reranked_results[i][0] for i in range(min(10, len(reranked_results)))]
 
-    print(best_result)
+    # print(best_result)
     # Return the reranked results as a list of tuples, each containing the document and its fused score
     return best_result
 
@@ -66,18 +66,18 @@ def history_summarize(history):
     global history_text
     sum_hist = history_sum.predict_new_summary(history, history_text)
     history_text = sum_hist
-    print("History:", sum_hist)
+    os.write(1, f"History: {sum_hist}\n".encode())
     return sum_hist
 
 def multi_retrievers_rekam(queries):
     # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
     try:
         pre_filter = rekam_jejak_self_retriever.invoke(queries[0])
-        print("Using Self-Retriever")
+        os.write(1, f"Using Self-Retriever".encode())
         res = [pre_filter, pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
     except:
         pre_filter = rekam_jejak_retriever_bm25.invoke(queries[0])
-        print("Using BM25")
+        os.write(1, f"Using BM25".encode())
         res = [pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
     finally:
         return res
@@ -87,11 +87,11 @@ def multi_retrievers_ketentuan(queries):
     # Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25
     try:
         pre_filter = ketentuan_terkait_self_retriever.invoke(queries[0])
-        print("Using Self-Retriever")
+        os.write(1, f"Using Self-Retriever".encode())
         res = [pre_filter, pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
     except:
         pre_filter = ketentuan_terkait_retriever_bm25.invoke(queries[0])
-        print("Using BM25")
+        os.write(1, f"Using BM25".encode())
         res = [pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
     finally:
         return res
