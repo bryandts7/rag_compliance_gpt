@@ -5,7 +5,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.load import dumps, loads
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 from langchain.memory.summary import SummarizerMixin
-from langchain.retrievers import EnsembleRetriever
 
 from database.database import rekam_jejak_vector, ketentuan_terkait_vector
 from utils.azure_openai import azure_llm
@@ -13,6 +12,7 @@ from handler.routing import router_chain
 from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
 from database.graph_rag import graph_rag_chain
 from handler.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
+from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
@@ -69,10 +69,32 @@ def history_summarize(history):
     print("History:", sum_hist)
     return sum_hist
 
-def ketentuan_terkait_runnable(queries):
+def multi_retrievers_rekam(queries):
     # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
-    res = [ketentuan_terkait_retriever_bm25.invoke(queries[0]), ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
-    return res
+    try:
+        pre_filter = rekam_jejak_self_retriever.invoke(queries[0])
+        print("Using Self-Retriever")
+        res = [pre_filter, pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
+    except:
+        pre_filter = rekam_jejak_retriever_bm25.invoke(queries[0])
+        print("Using BM25")
+        res = [pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
+    finally:
+        return res
+
+def multi_retrievers_ketentuan(queries):
+    # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
+    # Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25
+    try:
+        pre_filter = ketentuan_terkait_self_retriever.invoke(queries[0])
+        print("Using Self-Retriever")
+        res = [pre_filter, pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
+    except:
+        pre_filter = ketentuan_terkait_retriever_bm25.invoke(queries[0])
+        print("Using BM25")
+        res = [pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
+    finally:
+        return res
 
 def choose_retriever(result):
     print("Retriever routed to:", result["result"])
@@ -116,18 +138,20 @@ generate_queries = (
     | (lambda x: x.split("\n"))
 )
 
-rekam_jejak_retriever = rekam_jejak_vector().as_retriever(search_type="mmr")
+rekam_jejak_retriever_mmr = rekam_jejak_vector().as_retriever(search_type="mmr")
+rekam_jejak_retriever_sim = rekam_jejak_vector().as_retriever(search_type="similarity")
+rekam_jejak_retriever_bm25 = bm25_rekam_retriever()
+rekam_jejak_retriever_bm25.k = 10
+rekam_jejak_self_retriever = self_retriever_rekam_jejak()
+
 ketentuan_terkait_retriever_mmr = ketentuan_terkait_vector().as_retriever(search_type="mmr")
 ketentuan_terkait_retriever_sim = ketentuan_terkait_vector().as_retriever(search_type="similarity")
 ketentuan_terkait_retriever_bm25 = bm25_ketentuan_retriever()
 ketentuan_terkait_retriever_bm25.k = 10
+ketentuan_terkait_self_retriever = self_retriever_ketentuan()
 
-# retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
-# retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | ketentuan_terkait_retriever.map() | reciprocal_rank_fusion
-
-retrieval_rekam_jejak_chain_rag_fusion = generate_queries | rekam_jejak_retriever.map() | reciprocal_rank_fusion
-retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | RunnableLambda(ketentuan_terkait_runnable) | reciprocal_rank_fusion
-
+retrieval_rekam_jejak_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_rekam) | reciprocal_rank_fusion
+retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_ketentuan) | reciprocal_rank_fusion
 
 graph_chain = graph_rag_chain()
 template_rekam_jejak = RAG_REKAM_JEJAK_PROMPT

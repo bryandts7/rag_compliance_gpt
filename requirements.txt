@@ -10,3 +10,4 @@ langchain_pinecone
 retry
 bson
 rank_bm25
+redis

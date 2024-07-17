@@ -44,19 +44,19 @@ metadata_field_info = [
 
 document_content_description = "Isi Ketentuan dari Peraturan"
 
-from langchain_community.llms import Cohere
-
-llm = Cohere(temperature=0)
+llm = azure_llm()
 
 def self_retriever_rekam_jejak():
+    rekam_jejak = rekam_jejak_vector()
     retriever = SelfQueryRetriever.from_llm(
-        llm, rekam_jejak_vector(), document_content_description, metadata_field_info, verbose=True
+        llm, rekam_jejak, document_content_description, metadata_field_info, verbose=True
     )
     return retriever
 
 def self_retriever_ketentuan():
+    ketentuan_terkait = ketentuan_terkait_vector()
     retriever = SelfQueryRetriever.from_llm(
-        llm, ketentuan_terkait_vector(), document_content_description, metadata_field_info, verbose=True
+        llm, ketentuan_terkait, document_content_description, metadata_field_info, verbose=True
     )
     return retriever
 

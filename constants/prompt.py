@@ -26,6 +26,7 @@ RAG_PROMPT = (
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
     "don't know."
+    "Use three (3) sentences maximum and keep the answer concise."
     "Please write your answer ONLY in INDONESIAN."
 
     # "Jika sebuah peraturan A mencabut atau mengubah peraturan B, C, D"
