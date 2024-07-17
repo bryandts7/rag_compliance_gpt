@@ -1,3 +1,4 @@
+import os
 from operator import itemgetter
 from bson import ObjectId
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
@@ -13,7 +14,7 @@ from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_
 from database.graph_rag import graph_rag_chain
 from handler.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
 from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
-import os
+
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):
     if '_id' in doc.metadata:
@@ -58,8 +59,7 @@ def reciprocal_rank_fusion(results: list[list], k=60):
     #Top 10 Result
     best_result = [reranked_results[i][0] for i in range(min(10, len(reranked_results)))]
 
-    # print(best_result)
-    # Return the reranked results as a list of tuples, each containing the document and its fused score
+    # Return the best 10 results according to fused score as a list of document
     return best_result
 
 def history_summarize(history):
@@ -70,7 +70,8 @@ def history_summarize(history):
     return sum_hist
 
 def multi_retrievers_rekam(queries):
-    # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
+    """ Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
+        Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25.  """
     try:
         pre_filter = rekam_jejak_self_retriever.invoke(queries[0])
         os.write(1, f"Using Self-Retriever".encode())
@@ -83,8 +84,8 @@ def multi_retrievers_rekam(queries):
         return res
 
 def multi_retrievers_ketentuan(queries):
-    # Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers.
-    # Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25
+    """ Runnable Function forwarding from 3 generated queries for Fusion with 3 different retrievers. 
+        Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25. """
     try:
         pre_filter = ketentuan_terkait_self_retriever.invoke(queries[0])
         os.write(1, f"Using Self-Retriever".encode())
@@ -97,15 +98,15 @@ def multi_retrievers_ketentuan(queries):
         return res
 
 def choose_retriever(result):
-    print("Retriever routed to:", result["result"])
+    os.write(1, f"Retriever routed to: {result['result']}".encode())
     if result["result"] == "rekam_jejak":
-        parallel = RunnableParallel(unstructured=retrieval_rekam_jejak_chain_rag_fusion, structured=graph_chain)
+        parallel = RunnableParallel(unstructured=rekam_jejak_chain_rag_fusion, structured=rekam_jejak_graph_chain)
         chain = {"question": itemgetter("question"), "query": itemgetter("question"),
                  "history" : itemgetter("history") | RunnableLambda(history_summarize)} | parallel | context_rekam_jejak
         return chain
     elif result["result"] == "ketentuan_terkait":
         chain = {"question": itemgetter("question"),
-                 "history" : itemgetter("history") | RunnableLambda(history_summarize)} | retrieval_ketentuan_terkait_chain_rag_fusion
+                 "history" : itemgetter("history") | RunnableLambda(history_summarize)} | ketentuan_terkait_chain_rag_fusion
         return chain
 
 def rag_fusion_chain():
@@ -150,10 +151,10 @@ ketentuan_terkait_retriever_bm25 = bm25_ketentuan_retriever()
 ketentuan_terkait_retriever_bm25.k = 10
 ketentuan_terkait_self_retriever = self_retriever_ketentuan()
 
-retrieval_rekam_jejak_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_rekam) | reciprocal_rank_fusion
-retrieval_ketentuan_terkait_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_ketentuan) | reciprocal_rank_fusion
+rekam_jejak_graph_chain = graph_rag_chain()
+rekam_jejak_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_rekam) | reciprocal_rank_fusion
+ketentuan_terkait_chain_rag_fusion = generate_queries | RunnableLambda(multi_retrievers_ketentuan) | reciprocal_rank_fusion
 
-graph_chain = graph_rag_chain()
 template_rekam_jejak = RAG_REKAM_JEJAK_PROMPT
 context_rekam_jejak = PromptTemplate(
     input_variables=["unstructured", "structured"], template=template_rekam_jejak
