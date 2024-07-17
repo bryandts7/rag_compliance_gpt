@@ -74,11 +74,11 @@ def multi_retrievers_rekam(queries):
         Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25.  """
     try:
         pre_filter = rekam_jejak_self_retriever.invoke(queries[0])
-        os.write(1, f"Using Self-Retriever".encode())
+        os.write(1, f"Using Self-Retriever\n".encode())
         res = [pre_filter, pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
     except:
         pre_filter = rekam_jejak_retriever_bm25.invoke(queries[0])
-        os.write(1, f"Using BM25".encode())
+        os.write(1, f"Using BM25\n".encode())
         res = [pre_filter, rekam_jejak_retriever_mmr.invoke(queries[1]), rekam_jejak_retriever_sim.invoke(queries[2])]
     finally:
         return res
@@ -88,17 +88,17 @@ def multi_retrievers_ketentuan(queries):
         Try Pre-Filtering Metadata through Self-Query first. If error, then using BM25. """
     try:
         pre_filter = ketentuan_terkait_self_retriever.invoke(queries[0])
-        os.write(1, f"Using Self-Retriever".encode())
+        os.write(1, f"Using Self-Retriever\n".encode())
         res = [pre_filter, pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
     except:
         pre_filter = ketentuan_terkait_retriever_bm25.invoke(queries[0])
-        os.write(1, f"Using BM25".encode())
+        os.write(1, f"Using BM25\n".encode())
         res = [pre_filter, ketentuan_terkait_retriever_mmr.invoke(queries[1]), ketentuan_terkait_retriever_sim.invoke(queries[2])]
     finally:
         return res
 
 def choose_retriever(result):
-    os.write(1, f"Retriever routed to: {result['result']}".encode())
+    os.write(1, f"\nRetriever routed to: {result['result']}\n".encode())
     if result["result"] == "rekam_jejak":
         parallel = RunnableParallel(unstructured=rekam_jejak_chain_rag_fusion, structured=rekam_jejak_graph_chain)
         chain = {"question": itemgetter("question"), "query": itemgetter("question"),
