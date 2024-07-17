@@ -13,3 +13,4 @@ rank_bm25
 lark
 pymongo
 langchain_mongodb
+motor
