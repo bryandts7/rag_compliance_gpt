@@ -38,24 +38,25 @@ def lotr_ketentuan(dic):
     Chat History:
     {dic['history']}
     """
-
+    result = []
     qa_history_chain = llm | StrOutputParser()
     question_with_history = qa_history_chain.invoke(contextualize_q_system_prompt)
-    print(question_with_history)
+    os.write(1, f"Question w/ memory: {question_with_history}".encode())
+    
     try:
         lotr = MergerRetriever(retrievers=[ketentuan_terkait_self_retriever, ketentuan_terkait_retriever_mmr, ketentuan_terkait_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
-        print("Self Retriever Success")
+        os.write(1, f"Self Retriever Success".encode())
     except:
         lotr = MergerRetriever(retrievers=[ketentuan_terkait_retriever_bm25, ketentuan_terkait_retriever_mmr, ketentuan_terkait_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
     finally:
-        print("Retrieved Context:", len(result))
-        print(result)
+        os.write(1, f"Retrieved Context:, {len(result)}".encode())
+        os.write(1, f"{result}".encode())
         return result[:6]
 
 def lotr_rekam(dic):
@@ -68,25 +69,25 @@ def lotr_rekam(dic):
     Chat History:
     {dic['history']}
     """
-
+    result = []
     qa_history_chain = llm | StrOutputParser()
     question_with_history = qa_history_chain.invoke(contextualize_q_system_prompt)
-    print(question_with_history)
+    os.write(1, f"Question w/ memory: {question_with_history}".encode())
 
     try:
         lotr = MergerRetriever(retrievers=[rekam_jejak_self_retriever, rekam_jejak_retriever_mmr, rekam_jejak_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
-        print("Self Retriever Success")
+        os.write(1, f"Self Retriever Success".encode())
     except:
         lotr = MergerRetriever(retrievers=[rekam_jejak_retriever_bm25, rekam_jejak_retriever_mmr, rekam_jejak_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
     finally:
-        print("Retrieved Context:", len(result))
-        print(result)
+        os.write(1, f"Retrieved Context:, {len(result)}".encode())
+        os.write(1, f"{result}".encode())
         return result[:6]
 
 
