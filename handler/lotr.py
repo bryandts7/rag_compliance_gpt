@@ -42,7 +42,7 @@ def lotr_ketentuan(dic):
     qa_history_chain = llm | StrOutputParser()
     question_with_history = qa_history_chain.invoke(contextualize_q_system_prompt)
     os.write(1, f"Question w/ memory: {question_with_history}".encode())
-    
+
     try:
         lotr = MergerRetriever(retrievers=[ketentuan_terkait_self_retriever, ketentuan_terkait_retriever_mmr, ketentuan_terkait_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
@@ -121,13 +121,13 @@ compressor = CohereRerank(model="rerank-multilingual-v3.0", top_n=10)
 router = router_chain()
 
 filter = EmbeddingsRedundantFilter(embeddings=embedding)
-filter_ordered_by_retriever = EmbeddingsClusteringFilter(
-    embeddings=embedding,
-    num_clusters=10,
-    num_closest=1,
-    sorted=True,
-)
-pipeline = DocumentCompressorPipeline(transformers=[filter_ordered_by_retriever, filter])
+# filter_ordered_by_retriever = EmbeddingsClusteringFilter(
+#     embeddings=embedding,
+#     num_clusters=10,
+#     num_closest=1,
+#     sorted=True,
+# )
+pipeline = DocumentCompressorPipeline(transformers=[filter])
 
 history_sum = SummarizerMixin(llm=llm, prompt=SUMMARY_PROMPT)
 history_text = "-"
