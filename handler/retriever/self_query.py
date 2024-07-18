@@ -22,22 +22,22 @@ metadata_field_info = [
     ),
     AttributeInfo(
         name="Kodifikasi Ketentuan",
-        description="Kategori kodifikasi peraturan",
+        description="Kategori kodifikasi ketentuan",
         type="string",
     ),
     AttributeInfo(
         name="Nomor Ketentuan",
-        description="Nomor referensi peraturan",
+        description="Nomor dari ketentuan",
         type="string",
     ),
     AttributeInfo(
         name="Referensi",
-        description="Referensi terkait peraturan",
+        description="Referensi terkait ketentuan",
         type="string",
     ),
     AttributeInfo(
         name="Tanggal Ketentuan",
-        description="Tanggal ketika peraturan diterbitkan",
+        description="Tanggal ketika ketentuan diterbitkan",
         type="string",
     ),
 ]

@@ -12,8 +12,8 @@ from utils.azure_openai import azure_llm
 from handler.routing import router_chain
 from constants.prompt import RAG_FUSION_PROMPT, RAG_REKAM_JEJAK_PROMPT, SUMMARY_HISTORY_PROMPT
 from database.graph_rag import graph_rag_chain
-from handler.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
-from handler.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
+from handler.retriever.bm25 import bm25_ketentuan_retriever, bm25_rekam_retriever
+from handler.retriever.self_query import self_retriever_ketentuan, self_retriever_rekam_jejak
 
 # Convert ObjectId to string before serialization
 def convert_objectid_to_string(doc):

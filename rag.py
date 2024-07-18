@@ -14,6 +14,7 @@ from retry import retry
 from utils.azure_openai import azure_llm, azure_embeddings
 from constants.prompt import RAG_PROMPT
 from handler.rag_fusion import rag_fusion_chain
+from handler.lotr import lotr_context_chain
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in store:
@@ -40,7 +41,7 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-context_chain = rag_fusion_chain()
+context_chain = lotr_context_chain()
 full_chain = context_chain | prompt | llm | StrOutputParser()
 
 full_chain_with_context = context_chain | {"query":itemgetter("question"), "result": prompt | llm | StrOutputParser(), "source_documents": itemgetter("context") } #| RunnableLambda(get_source_docs)}
