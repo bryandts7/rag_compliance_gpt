@@ -17,16 +17,6 @@ pc = Pinecone(api_key=pinecone_api_key)
 
 # MongoDB Database
 mongo_uri = os.environ.get("MONGO_URI")
-REKAM_JEJAK_DOCSTORE = MongodbLoader(
-    connection_string= mongo_uri, # type: ignore
-    db_name="docstore",
-    collection_name="rekam_jejak",
-)
-KETENTUAN_TERKAIT_DOCSTORE = MongodbLoader(
-    connection_string= mongo_uri, # type: ignore
-    db_name="docstore",
-    collection_name="ketentuan_terkait",
-)
 
 def rekam_jejak_vector():
     index_name = "rekam-jejak"
@@ -35,6 +25,11 @@ def rekam_jejak_vector():
     return rekam_jejak_vector
 
 def rekam_jejak_docstore():
+    REKAM_JEJAK_DOCSTORE = MongodbLoader(
+    connection_string= mongo_uri, # type: ignore
+    db_name="docstore",
+    collection_name="rekam_jejak",
+    )
     return REKAM_JEJAK_DOCSTORE
 
 def ketentuan_terkait_vector():
@@ -45,4 +40,9 @@ def ketentuan_terkait_vector():
     return ketentuan_terkait_vector
 
 def ketentuan_terkait_docstore():
+    KETENTUAN_TERKAIT_DOCSTORE = MongodbLoader(
+    connection_string= mongo_uri, # type: ignore
+    db_name="docstore",
+    collection_name="ketentuan_terkait",
+    )
     return KETENTUAN_TERKAIT_DOCSTORE
