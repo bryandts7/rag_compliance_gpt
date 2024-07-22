@@ -27,7 +27,7 @@ RAG_PROMPT = (
     "the question. If you don't know the answer, say that you "
     "don't know. Please do not use your prior knowledge."
     "If the question does not related to the context given, just answer 'Saya tidak tahu mengenai hal tersebut'. "
-    "Use three (3) sentences maximum and keep the answer concise."
+    "Use three to five (3-5) sentences maximum and keep the answer concise."
     "Please write your answer ONLY in INDONESIAN."
 
     # "Jika sebuah peraturan A mencabut atau mengubah peraturan B, C, D"

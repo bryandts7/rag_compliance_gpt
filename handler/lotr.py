@@ -41,23 +41,23 @@ def lotr_ketentuan(dic):
     result = []
     qa_history_chain = llm | StrOutputParser()
     question_with_history = qa_history_chain.invoke(contextualize_q_system_prompt)
-    os.write(1, f"Question w/ memory: {question_with_history}".encode())
+    os.write(1, f"Question w/ memory: {question_with_history}\n".encode())
 
     try:
         lotr = MergerRetriever(retrievers=[ketentuan_terkait_self_retriever, ketentuan_terkait_retriever_mmr, ketentuan_terkait_retriever_sim])
-        compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
-        retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
+        # compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
+        retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=lotr)
         result = retriever.invoke(question_with_history)
-        os.write(1, f"Self Retriever Success".encode())
+        os.write(1, f"Self Retriever Success\n".encode())
     except:
         lotr = MergerRetriever(retrievers=[ketentuan_terkait_retriever_bm25, ketentuan_terkait_retriever_mmr, ketentuan_terkait_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
     finally:
-        os.write(1, f"Retrieved Context:, {len(result)}".encode())
-        os.write(1, f"{result}".encode())
-        return result[:6]
+        os.write(1, f"Retrieved Context:, {len(result)}\n".encode())
+        os.write(1, f"{result}\n".encode())
+        return result
 
 def lotr_rekam(dic):
     contextualize_q_system_prompt  = f"""Given a chat history and the latest user question \
@@ -72,23 +72,23 @@ def lotr_rekam(dic):
     result = []
     qa_history_chain = llm | StrOutputParser()
     question_with_history = qa_history_chain.invoke(contextualize_q_system_prompt)
-    os.write(1, f"Question w/ memory: {question_with_history}".encode())
+    os.write(1, f"Question w/ memory: {question_with_history}\n".encode())
 
     try:
         lotr = MergerRetriever(retrievers=[rekam_jejak_self_retriever, rekam_jejak_retriever_mmr, rekam_jejak_retriever_sim])
-        compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
-        retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
+        # compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
+        retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=lotr)
         result = retriever.invoke(question_with_history)
-        os.write(1, f"Self Retriever Success".encode())
+        os.write(1, f"Self Retriever Success\n".encode())
     except:
         lotr = MergerRetriever(retrievers=[rekam_jejak_retriever_bm25, rekam_jejak_retriever_mmr, rekam_jejak_retriever_sim])
         compression_retriever = ContextualCompressionRetriever(base_compressor=pipeline, base_retriever=lotr)
         retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=compression_retriever)
         result = retriever.invoke(question_with_history)
     finally:
-        os.write(1, f"Retrieved Context:, {len(result)}".encode())
-        os.write(1, f"{result}".encode())
-        return result[:6]
+        os.write(1, f"Retrieved Context:, {len(result)}\n".encode())
+        os.write(1, f"{result}\n".encode())
+        return result
 
 
 def choose_retriever(result):
@@ -117,7 +117,7 @@ SUMMARY_PROMPT = PromptTemplate(
 )
 llm = azure_llm()
 embedding = azure_embeddings()
-compressor = CohereRerank(model="rerank-multilingual-v3.0", top_n=10)
+compressor = CohereRerank(model="rerank-multilingual-v3.0", top_n=15)
 router = router_chain()
 
 filter = EmbeddingsRedundantFilter(embeddings=embedding)
