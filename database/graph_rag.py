@@ -13,9 +13,10 @@ dotenv.load_dotenv()
 URL = os.getenv("NEO4J_GRAPH_URL")
 USERNAME = os.getenv("NEO4J_USERNAME")
 PASSWORD = os.getenv("NEO4J_PASSWORD")
-DATABASE = os.getenv("NEO4J_DATABASE")
 
-graph = Neo4jGraph(url=URL, username=USERNAME, password= PASSWORD, database=DATABASE, )
+print(URL)
+
+graph = Neo4jGraph(url=URL, username=USERNAME, password= PASSWORD)
 llm = azure_llm()
 
 qa_generation_template = GRAPH_QA_GEN_PROMPT

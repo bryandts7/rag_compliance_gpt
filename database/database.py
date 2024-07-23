@@ -12,22 +12,17 @@ dotenv.load_dotenv()
 
 embeddings = azure_embeddings()
 
-# Pinecone Database
-pinecone_api_key = os.environ.get("PINECONE_API_KEY")
-pc = Pinecone(api_key=pinecone_api_key)
-
 # Redis Database
-redis_url = os.environ.get("REDIS_URL")
-
+redis_url = os.environ.get("REDIS_URI")
+print(redis_url)
 
 # MongoDB Database
 mongo_uri = os.environ.get("MONGO_URI")
 
 def rekam_jejak_vector():
-    index_name = "rekam-jejak"
     rekam_jejak_vector = RedisVectorStore.from_existing_index(
                             embedding = embeddings,
-                            index_name = index_name,
+                            index_name = "sikepo-rekam-jejak",
                             redis_url = redis_url,
                             schema = r"constants/redis_schema_sikepo_rekam.yaml",
                         )
@@ -42,10 +37,9 @@ def rekam_jejak_docstore():
     return REKAM_JEJAK_DOCSTORE
 
 def ketentuan_terkait_vector():
-    index_name = "ketentuan-terkait"
     ketentuan_terkait_vector = RedisVectorStore.from_existing_index(
                             embedding = embeddings,
-                            index_name = index_name,
+                            index_name = "sikepo-ketentuan-terkait",
                             redis_url = redis_url,
                             schema = r"constants/redis_schema_sikepo_ketentuan.yaml",
                         )
