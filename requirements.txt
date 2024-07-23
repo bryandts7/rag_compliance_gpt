@@ -5,8 +5,7 @@ langchain-community==0.2.6
 python-dotenv
 langchain_openai==0.1.13
 neo4j
-pinecone
-langchain_pinecone
+redis
 retry
 bson
 rank_bm25
