@@ -1,5 +1,3 @@
-from pinecone import Pinecone, ServerlessSpec
-from langchain_pinecone import PineconeVectorStore
 from langchain.vectorstores.redis import Redis as RedisVectorStore
 from langchain_community.document_loaders.mongodb import MongodbLoader
 
